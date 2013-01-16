@@ -1,0 +1,11 @@
+CONFIG -= app_bundle
+CONFIG += console
+CONFIG += debug
+HEADERS += include/nzmqt/nzmqt.hpp include/prax/*.h
+LIBS += -lgd -lzmq
+QT += core webkit network
+QMAKE_CXXFLAGS += -fPIC
+SOURCES += src/prax.cpp src/prax/*.cpp
+INCLUDEPATH += include
+TARGET = prax
+TEMPLATE = app
