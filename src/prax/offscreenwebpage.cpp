@@ -1,4 +1,4 @@
-#include "offscreenwebpage.h"
+#include "prax/offscreenwebpage.h"
 
 using namespace Prax;
 

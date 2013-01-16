@@ -1,3 +1,4 @@
+#include "prax/request.h"
 #include "prax/countdown.h"
 
 using namespace Prax;
@@ -21,5 +22,7 @@ Countdown::Countdown(QString in_addr, QString out_addr)
 
 void Countdown::gen_countdown(const QList<QByteArray> &request)
 {
-    qDebug() << "Got request" << request;
+    qDebug() << "Got request";
+    Request req(request[0]);
+    qDebug() << req;
 }
