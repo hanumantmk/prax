@@ -32,7 +32,7 @@ Request::Request(QByteArray ba)
     }
 }
 
-QDebug operator<<(QDebug dbg, const Request& req)
+QDebug Prax::operator<<(QDebug dbg, const Request& req)
 {
     dbg << "{ " <<
         "sender : " << req.sender.c_str() << "," <<
