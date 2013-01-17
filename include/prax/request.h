@@ -3,6 +3,8 @@
 
 #include <QByteArray>
 #include <QDebug>
+#include <QHash>
+#include <QString>
 
 #include "prax/utils.h"
 
@@ -13,7 +15,7 @@ class Request {
         std::string sender;
         std::string conn_id;
         std::string path;
-        std::vector<header> headers;
+        QHash<QString, QString> headers;
         std::string body;
         bool disconnect;
         Request(QByteArray);

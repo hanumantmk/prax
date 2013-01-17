@@ -1,4 +1,6 @@
 #include "prax/utils.h"
+#include <QHash>
+#include <QString>
 
 using namespace Prax;
 
@@ -33,15 +35,15 @@ std::string utils::parse_netstring(const std::string& str, std::string& rest) {
 	return result[1].substr(0, len);
 }
 
-std::vector<header> utils::parse_json(const std::string& jsondoc) {
-	std::vector<header> hdrs;
+QHash<QString, QString> utils::parse_json(const std::string& jsondoc) {
+	QHash<QString, QString> hdrs;
 
 	json_object * jobj = json_tokener_parse(jsondoc.c_str());
 
 	if (jobj && json_object_is_type(jobj, json_type_object)) {
 		json_object_object_foreach(jobj, key, value) {
 			if (key && value && json_object_is_type(value, json_type_string)) {
-				hdrs.push_back(header(key, json_object_get_string(value)));
+				hdrs[key] = QString(json_object_get_string(value));
 			}
 		}
 	}

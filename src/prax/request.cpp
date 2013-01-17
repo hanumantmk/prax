@@ -1,4 +1,6 @@
 #include "prax/request.h"
+#include <QHash>
+#include <QString>
 
 using namespace Prax;
 
@@ -22,13 +24,15 @@ Request::Request(QByteArray ba)
 
     //check disconnect flag
     disconnect = false;
-    for (std::vector<header>::const_iterator it = headers.begin();
-                    it != headers.end(); ++it) {
-            if (it->first == "METHOD" && it->second == "JSON" &&
-                            body == "{\"type\":\"disconnect\"}") {
-                    disconnect = true;
-                    break;
-            }
+    QHash<QString, QString>::const_iterator it = headers.constBegin();
+    while (it != headers.constEnd()) {
+        if (QString::compare(it.key(), QString("METHOD"), Qt::CaseSensitive) &&
+            QString::compare(it.value(), QString("JSON"), Qt::CaseSensitive) &&
+                        body == "{\"type\":\"disconnect\"}") {
+                disconnect = true;
+                break;
+        }
+	it++;
     }
 }
 
@@ -42,9 +46,10 @@ QDebug Prax::operator<<(QDebug dbg, const Request& req)
         "disconnect : " << req.disconnect << ",\n" <<
         "headers: {\n";
 
-    for (std::vector<header>::const_iterator it = req.headers.begin();
-                    it != req.headers.end(); ++it) {
-        dbg << "  " << it->first.c_str() << " : " << it->second.c_str() << ",\n";
+    QHash<QString, QString>::const_iterator it = req.headers.constBegin();
+    while (it != req.headers.constEnd()) {
+        dbg << "  " << it.key() << " : " << it.value() << ",\n";
+	it++;
     }
     dbg << "}\n}";
 
