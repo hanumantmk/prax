@@ -166,6 +166,7 @@ void Countdown::capturePage()
         }
         out_buf = gdImageGifAnimEndPtr(&out_size);
         sendData(out_buf, out_size);
+        sendData((void *)"", 0);
         gdFree(out_buf);
 
         gdImageDestroy(gdimage);
