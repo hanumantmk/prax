@@ -96,8 +96,11 @@ void WebWatch::clickThrough(Request * req)
         QList<QVariant> link = links[i].toList();
 
         QList<QVariant> box = link[1].toList();
+
+        qDebug() << "is " << x << "," << y << " in " << box;
+
         if (x >= box[0].toDouble() && x <= box[0].toDouble() + box[2].toDouble() &&
-            y >= box[1].toDouble() && x <= box[1].toDouble() + box[3].toDouble()) {
+            y >= box[1].toDouble() && y <= box[1].toDouble() + box[3].toDouble()) {
 
             QString redirect = QString("HTTP/1.1 307\r\nLOCATION: %1\r\n\r\n").arg(link[0].toString());
 
@@ -117,6 +120,7 @@ void WebWatch::clickThrough(Request * req)
             qDebug() << "clicking through to " << redirect;
         }
     }
+    qDebug() << "couldn't find a link for " << x << " and " << y;
 }
 
 void WebWatch::gen_next_page()
