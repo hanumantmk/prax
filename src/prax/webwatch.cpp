@@ -14,7 +14,9 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
     request = NULL;
     pgdimage = NULL;
 
-    //clipID = "top";
+    maxSize = QSize(400, 400);
+
+    clipID = "timeline";
 
     connect(page->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(gotReply(QNetworkReply*)));
 
@@ -60,9 +62,7 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
     }
 
     if (request) {
-        sendData((void *)"",0);
-        delete request;
-        request = NULL;
+        endConnection();
     }
 
     if (pgdimage) {
@@ -83,7 +83,7 @@ void WebWatch::clickThrough(Request * req)
 
     QRegExp rx("\\?(\\d+),(\\d+)$");
 
-    int pos = rx.indexIn(uri);
+    rx.indexIn(uri);
 
     QStringList coor = rx.capturedTexts();
 
@@ -97,7 +97,7 @@ void WebWatch::clickThrough(Request * req)
 
         QList<QVariant> box = link[1].toList();
 
-        qDebug() << "is " << x << "," << y << " in " << box;
+        //qDebug() << "is " << x << "," << y << " in " << box;
 
         if (x >= box[0].toDouble() && x <= box[0].toDouble() + box[2].toDouble() &&
             y >= box[1].toDouble() && y <= box[1].toDouble() + box[3].toDouble()) {
@@ -111,15 +111,16 @@ void WebWatch::clickThrough(Request * req)
 
             utils::deliver(req->sender, idents, ba, out_socket);
 
-            sendData((void *)"",0);
-            delete request;
-            request = NULL;
-
             utils::deliver(req->sender, idents, NULL, out_socket);
 
             qDebug() << "clicking through to " << redirect;
+
+            endConnection();
+            return;
         }
     }
+    endConnection();
+
     qDebug() << "couldn't find a link for " << x << " and " << y;
 }
 
@@ -127,8 +128,8 @@ void WebWatch::gen_next_page()
 {
     qDebug() << "generating a new page...";
     if (!request) return;
-    page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
-    //page->mainFrame()->load(QString("https://twitter.com/msgpdhackday"));
+    //page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
+    page->mainFrame()->load(QString("https://twitter.com/msgpdhackday"));
 }
 
 void WebWatch::capturePage()
@@ -150,6 +151,16 @@ void WebWatch::capturePage()
         qDebug() << "page mainFrame documentElement geometry: " << page->mainFrame()->documentElement().geometry();
         qDebug() << "contentSize: " << contentSize;
 
+        if (contentSize.height() == 0 || contentSize.width() == 0) {
+            if (tries > 5) {
+                endConnection();
+                return;
+            }
+            tries++;
+            QTimer::singleShot(1000, this, SLOT(gen_next_page()));
+            return;
+        }
+
         page->setViewportSize(contentSize);
 
         view->resize(contentSize); // for some reason this fixes garbage that would show up on the right ( past the 800 pixel mark )
@@ -161,9 +172,6 @@ void WebWatch::capturePage()
         QList<QVariant> links_pos = pos["links"].toList();
 
         clickMap = pos["links"];
-
-        qDebug() << root_pos;
-        qDebug() << links_pos;
 
         gdImage * gdimage = NULL;
 
@@ -185,6 +193,12 @@ void WebWatch::capturePage()
         buffer.open(QIODevice::WriteOnly);
         qimg.save(&buffer, "PNG");
         buffer.close();
+
+        if (ba.length() == 0) {
+            qDebug() << "Couldn't write image";
+            endConnection();
+            return;
+        }
 
         gdimage = gdImageCreateFromPngPtr(ba.length(), ba.data());
 
@@ -224,6 +238,8 @@ void WebWatch::capturePage()
     if(statusCode == 0) {
         if(tries > 5) {
             qDebug() << "Giving up.";
+            endConnection();
+            return;
         }
         tries++;
     }
@@ -258,5 +274,14 @@ void WebWatch::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
     qDebug() << errors;
     reply->ignoreSslErrors();
+}
+
+void WebWatch::endConnection(void)
+{
+    if (request) {
+        sendData((void *)"", 0);
+        delete request;
+        request = NULL;
+    }
 }
 

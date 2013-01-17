@@ -25,6 +25,7 @@ class WebWatch : public QObject {
     int statusCode;
     QUrl pageUrl;
     QSize pageSize;
+    QSize maxSize;
     QString elementId;
     nzmqt::ZMQSocket * in_socket;
     nzmqt::ZMQSocket * out_socket;
@@ -36,6 +37,7 @@ class WebWatch : public QObject {
 
 public:
     WebWatch(QString in_addr, QString out_addr);
+    void endConnection(void);
 
 private:
     void sendData(void * buf, int size);
