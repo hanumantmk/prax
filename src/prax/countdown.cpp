@@ -40,7 +40,7 @@ void Countdown::gen_countdown(const QList<QByteArray> &msg)
 {
     qDebug() << "Got request";
     Request * req = new Request(msg[0]);
-    qDebug() << req;
+    qDebug() << *req;
 
     request = req;
 

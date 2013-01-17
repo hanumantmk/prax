@@ -35,11 +35,18 @@ Request::Request(QByteArray ba)
 QDebug Prax::operator<<(QDebug dbg, const Request& req)
 {
     dbg << "{ " <<
-        "sender : " << req.sender.c_str() << "," <<
-        "conn_id : " << req.conn_id.c_str() << "," <<
-        "body : " << req.body.c_str() << "," <<
-        "disconnect : " << req.disconnect <<
-    "}";
+        "sender : " << req.sender.c_str() << ",\n" <<
+        "conn_id : " << req.conn_id.c_str() << ",\n" <<
+        "body : " << req.body.c_str() << ",\n" <<
+        "path : " << req.path.c_str() << ",\n" <<
+        "disconnect : " << req.disconnect << ",\n" <<
+        "headers: {\n";
+
+    for (std::vector<header>::const_iterator it = req.headers.begin();
+                    it != req.headers.end(); ++it) {
+        dbg << "  " << it->first.c_str() << " : " << it->second.c_str() << ",\n";
+    }
+    dbg << "}\n}";
 
     return dbg;
 }
