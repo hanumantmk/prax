@@ -68,25 +68,16 @@ void Countdown::capturePage()
         statusCode != 303
        ) {
 
-        QString SupportJS = QString(
+        QString TimerJS = QString(
         "function setTime(hours,minutes,seconds) {\n"
         "    document.getElementById('HH').innerHTML=hours;\n"
         "    document.getElementById('MM').innerHTML=minutes;\n"
         "    document.getElementById('SS').innerHTML=seconds;\n"
         "}\n"
-        "\n"
-        "function getPos(id) {\n"
-        "    el = document.getElementById(id);\n"
-        "    height = el.offsetHeight;\n"
-        "    width = el.offsetWidth;\n"
-        "    for (var lx=0, ly=0;\n"
-        "         el != null;\n"
-        "         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);\n"
-        "    return [lx,ly,width,height];\n"
-        "}\n"
         );
 
-        QVariant r = page->mainFrame()->evaluateJavaScript(SupportJS);
+        page->mainFrame()->evaluateJavaScript(TimerJS);
+        utils::install_support_js(page);
 
         QSize contentSize = page->mainFrame()->contentsSize();
 

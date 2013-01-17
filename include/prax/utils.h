@@ -5,6 +5,8 @@
 
 #include "nzmqt/nzmqt.hpp"
 
+#include "prax/offscreenwebpage.h"
+
 namespace Prax {
 
 typedef std::pair<std::string, std::string> header;
@@ -18,6 +20,8 @@ std::string parse_netstring(const std::string& str, std::string& rest) ;
 QHash<QString, QString> parse_json(const std::string& jsondoc);
 
 void deliver(const std::string& uuid, const std::vector<std::string>& idents, const QByteArray &data, nzmqt::ZMQSocket * socket);
+
+void install_support_js(OffScreenWebPage * page);
 
 }
 }

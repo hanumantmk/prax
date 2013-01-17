@@ -77,3 +77,42 @@ void utils::deliver(const std::string& uuid, const std::vector<std::string>& ide
 
         socket->sendMessage(ba);
 }
+
+void utils::install_support_js(OffScreenWebPage * page)
+{
+    QString support_js(
+        "function getPos(el)"
+        "{"
+        "    height = el.offsetHeight;"
+        "    width = el.offsetWidth;"
+        "    for (var lx=0, ly=0; el != null; lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);"
+        "    return [lx,ly,width,height];"
+        "}"
+        ""
+        "function getLinkPos(id) {"
+        "    var root = document;"
+        "    var root_pos = [0,0];"
+        "    if (id) {"
+        "        root = document.getElementById(id);"
+        "        root_pos = getPos(root);"
+        "    }"
+        ""
+        "    var links = root.getElementsByTagName(\"a\");"
+        "    var out = [];"
+        ""
+        "    for (var i = 0; i < links.length; i++) {"
+        "        var pos = getPos(links[i]);"
+        "        pos[0] -= root_pos[0];"
+        "        pos[1] -= root_pos[1];"
+        "        out.push([links[i].getAttribute(\"href\"), pos]);"
+        "    }"
+        ""
+        "    return {"
+        "        root : root_pos,"
+        "        links : out"
+        "    };"
+        "}"
+    );
+
+    page->mainFrame()->evaluateJavaScript(support_js);
+}
