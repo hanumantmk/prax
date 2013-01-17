@@ -31,6 +31,7 @@ class WebWatch : public QObject {
     Request * request;
     bool new_request;
     gdImage * pgdimage;
+    QString clipID;
 
 public:
     WebWatch(QString in_addr, QString out_addr);

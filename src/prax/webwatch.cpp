@@ -14,6 +14,8 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
     request = NULL;
     pgdimage = NULL;
 
+    clipID = "top";
+
     connect(page->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(gotReply(QNetworkReply*)));
 
     connect(page, SIGNAL(loadFinished(bool)), SLOT(capturePage()));
@@ -84,6 +86,7 @@ void WebWatch::capturePage()
         statusCode != 302 &&
         statusCode != 303
        ) {
+        utils::install_support_js(page);
 
         QSize contentSize = page->mainFrame()->contentsSize();
 
@@ -99,11 +102,21 @@ void WebWatch::capturePage()
 
         view->repaint();
 
+        QMap<QString,QVariant> pos = page->mainFrame()->evaluateJavaScript(QString("getLinkPos(\"%1\")").arg(clipID)).toMap();
+        QList<QVariant> root_pos = pos["root"].toList();
+        QList<QVariant> links_pos = pos["links"].toList();
+        qDebug() << root_pos;
+        qDebug() << links_pos;
+
         gdImage * gdimage = NULL;
 
         QRect grabRect;
 
-        grabRect = QRect(0, 0, pageSize.width(), pageSize.height());
+        if (root_pos.length() == 4) {
+            grabRect = QRect(root_pos[0].toDouble(),root_pos[1].toDouble(),root_pos[2].toDouble(),root_pos[3].toDouble());
+        } else {
+            grabRect = QRect(0, 0, pageSize.width(), pageSize.height());
+        }
 
         int out_size;
         void * out_buf;
