@@ -14,7 +14,7 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
     request = NULL;
     pgdimage = NULL;
 
-    clipID = "top";
+    //clipID = "top";
 
     connect(page->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(gotReply(QNetworkReply*)));
 
@@ -79,7 +79,44 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
 
 void WebWatch::clickThrough(Request * req)
 {
-    qDebug() << *req;
+    QString uri = req->headers["URI"];
+
+    QRegExp rx("\\?(\\d+),(\\d+)$");
+
+    int pos = rx.indexIn(uri);
+
+    QStringList coor = rx.capturedTexts();
+
+    int x = coor[1].toInt();
+    int y = coor[2].toInt();
+
+    QList<QVariant> links = clickMap.toList();
+
+    for (int i = 0; i < links.length(); i++) {
+        QList<QVariant> link = links[i].toList();
+
+        QList<QVariant> box = link[1].toList();
+        if (x >= box[0].toDouble() && x <= box[0].toDouble() + box[2].toDouble() &&
+            y >= box[1].toDouble() && x <= box[1].toDouble() + box[3].toDouble()) {
+
+            QString redirect = QString("HTTP/1.1 307\r\nLOCATION: %1\r\n\r\n").arg(link[0].toString());
+
+            QByteArray ba = redirect.toAscii();
+
+            std::vector<std::string> idents;
+            idents.push_back(req->conn_id);
+
+            utils::deliver(req->sender, idents, ba, out_socket);
+
+            sendData((void *)"",0);
+            delete request;
+            request = NULL;
+
+            utils::deliver(req->sender, idents, NULL, out_socket);
+
+            qDebug() << "clicking through to " << redirect;
+        }
+    }
 }
 
 void WebWatch::gen_next_page()
@@ -118,6 +155,9 @@ void WebWatch::capturePage()
         QMap<QString,QVariant> pos = page->mainFrame()->evaluateJavaScript(QString("getLinkPos(\"%1\")").arg(clipID)).toMap();
         QList<QVariant> root_pos = pos["root"].toList();
         QList<QVariant> links_pos = pos["links"].toList();
+
+        clickMap = pos["links"];
+
         qDebug() << root_pos;
         qDebug() << links_pos;
 
