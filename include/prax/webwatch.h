@@ -38,6 +38,7 @@ public:
 
 private:
     void sendData(void * buf, int size);
+    void clickThrough(Request * req);
 
 private slots:
     void gen_page(const QList<QByteArray> &request);

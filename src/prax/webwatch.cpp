@@ -40,6 +40,25 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
 
 void WebWatch::gen_page(const QList<QByteArray> &msg)
 {
+    qDebug() << "Got request";
+    Request * req = new Request(msg[0]);
+    qDebug() << *req;
+
+    if (req->disconnect) {
+        new_request = false;
+        delete request;
+        delete req;
+        request = NULL;
+        return;
+    }
+
+    if (req->path.find("click") != std::string::npos) {
+        qDebug() << "going for click through";
+        clickThrough(req);
+        delete(req);
+        return;
+    }
+
     if (request) {
         sendData((void *)"",0);
         delete request;
@@ -51,22 +70,16 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
         pgdimage = NULL;
     }
 
-    qDebug() << "Got request";
-    Request * req = new Request(msg[0]);
-    qDebug() << *req;
-
-    if (req->disconnect) {
-        new_request = false;
-        delete request;
-        request = NULL;
-        return;
-    }
-
     new_request = true;
 
     request = req;
 
     gen_next_page();
+}
+
+void WebWatch::clickThrough(Request * req)
+{
+    qDebug() << *req;
 }
 
 void WebWatch::gen_next_page()

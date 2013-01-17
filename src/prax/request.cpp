@@ -25,20 +25,11 @@ Request::Request(QByteArray ba)
 
     //check disconnect flag
     disconnect = false;
-    QHash<QString, QString>::const_iterator it = headers.constBegin();
-    while (it != headers.constEnd()) {
-	// qDebug() << "header: " << it.key() << " : " << it.value();
-        if (QString::compare(it.key(), QString("METHOD"), Qt::CaseSensitive) &&
-            QString::compare(it.value(), QString("JSON"), Qt::CaseSensitive) &&
-                        body == "{\"type\":\"disconnect\"}") {
-                disconnect = true;
-                break;
-        }
-	it++;
-    }
 
     QByteArray url_bytes(headers.value("URI").toUtf8());
     url = QUrl::fromEncoded(url_bytes);
+
+    if (headers["METHOD"] == "JSON" && body == "{\"type\":\"disconnect\"}") disconnect = true;
 }
 
 QDebug Prax::operator<<(QDebug dbg, const Request& req)
