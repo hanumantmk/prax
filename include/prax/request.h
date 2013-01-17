@@ -1,3 +1,6 @@
+#ifndef PRAX_REQUEST_H
+#define PRAX_REQUEST_H
+
 #include <QByteArray>
 #include <QDebug>
 
@@ -19,3 +22,5 @@ class Request {
 QDebug operator<<(QDebug, const Request&);
 
 }
+
+#endif

@@ -50,3 +50,28 @@ std::vector<header> utils::parse_json(const std::string& jsondoc) {
 
 	return hdrs;
 }
+
+void utils::deliver(const std::string& uuid, const std::vector<std::string>& idents, const QByteArray &data, nzmqt::ZMQSocket * socket) {
+	assert(idents.size() <= 100);
+	std::ostringstream msg;
+	msg << uuid << " ";
+
+	size_t idents_size(idents.size()-1); // initialize with size needed for spaces
+	for (size_t i=0; i<idents.size(); i++) {
+		idents_size += idents[i].size();
+	}
+	msg << idents_size << ":";
+	for (size_t i=0; i<idents.size(); i++) {
+		msg << idents[i];
+		if (i < idents.size()-1)
+			msg << " ";
+	}
+	msg << ", ";
+
+        std::string str = msg.str();
+
+        QByteArray ba(str.data(), str.length());
+        ba.append(data);
+
+        socket->sendMessage(ba);
+}

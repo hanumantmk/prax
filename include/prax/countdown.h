@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QtWebKit>
 
-#include "prax/countdown.h"
+#include "prax/request.h"
 #include "prax/offscreenwebpage.h"
 #include "nzmqt/nzmqt.hpp"
 
@@ -29,14 +29,19 @@ class Countdown : public QObject {
     QString elementId;
     nzmqt::ZMQSocket * in_socket;
     nzmqt::ZMQSocket * out_socket;
+    Request * request;
 
 public:
     Countdown(QString in_addr, QString out_addr);
 
+private:
+    void sendData(void * buf, int size);
+
 private slots:
     void gen_countdown(const QList<QByteArray> &request);
-    //void gotReply(QNetworkReply *reply);
-    //void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+    void capturePage();
+    void gotReply(QNetworkReply *reply);
+    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 };
 
 }
