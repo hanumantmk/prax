@@ -44,7 +44,7 @@ void Countdown::gen_countdown(const QList<QByteArray> &msg)
 
     request = req;
 
-    page->mainFrame()->load(QString("http://127.0.0.1/banner.html"));
+    page->mainFrame()->load(QString("http://127.0.0.1:6767/static/banner.html"));
 }
 
 void Countdown::capturePage()
