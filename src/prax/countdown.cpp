@@ -14,6 +14,8 @@ Countdown::Countdown(QString in_addr, QString out_addr)
     start = 60;
     end = 1;
 
+    qDebug() << "Binding to " << in_addr << " and " << out_addr;
+
     connect(page->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(gotReply(QNetworkReply*)));
 
     connect(page, SIGNAL(loadFinished(bool)), SLOT(capturePage()));
