@@ -38,7 +38,12 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
 
 void WebWatch::gen_page(const QList<QByteArray> &msg)
 {
-    if (request) delete request;
+    if (request) {
+        sendData((void *)"",0);
+        delete request;
+        request = NULL;
+    }
+
     if (pgdimage) {
         gdImageDestroy(pgdimage);
         pgdimage = NULL;
@@ -47,6 +52,13 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
     qDebug() << "Got request";
     Request * req = new Request(msg[0]);
     qDebug() << *req;
+
+    if (req->disconnect) {
+        new_request = false;
+        delete request;
+        request = NULL;
+        return;
+    }
 
     new_request = true;
 
@@ -58,6 +70,7 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
 void WebWatch::gen_next_page()
 {
     qDebug() << "generating a new page...";
+    if (!request) return;
     page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
     //page->mainFrame()->load(QString("https://twitter.com/msgpdhackday"));
 }
