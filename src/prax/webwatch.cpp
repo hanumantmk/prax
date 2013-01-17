@@ -52,13 +52,14 @@ void WebWatch::gen_page(const QList<QByteArray> &msg)
 
     request = req;
 
-    page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
+    gen_next_page();
 }
 
 void WebWatch::gen_next_page()
 {
     qDebug() << "generating a new page...";
     page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
+    //page->mainFrame()->load(QString("https://twitter.com/msgpdhackday"));
 }
 
 void WebWatch::capturePage()
@@ -79,9 +80,9 @@ void WebWatch::capturePage()
         qDebug() << "page mainFrame documentElement geometry: " << page->mainFrame()->documentElement().geometry();
         qDebug() << "contentSize: " << contentSize;
 
-        //page->setViewportSize(contentSize);
+        page->setViewportSize(contentSize);
 
-        //view->resize(contentSize); // for some reason this fixes garbage that would show up on the right ( past the 800 pixel mark )
+        view->resize(contentSize); // for some reason this fixes garbage that would show up on the right ( past the 800 pixel mark )
 
         view->repaint();
 
@@ -113,7 +114,8 @@ void WebWatch::capturePage()
             gdFree(out_buf);
         }
 
-        out_buf = gdImageGifAnimAddPtr(gdimage, &out_size, 1, 0, 0, 100, gdDisposalNone, pgdimage);
+        //out_buf = gdImageGifAnimAddPtr(gdimage, &out_size, 1, 0, 0, 100, gdDisposalNone, pgdimage);
+        out_buf = gdImageGifAnimAddPtr(gdimage, &out_size, 1, 0, 0, 100, gdDisposalNone, NULL);
         sendData(out_buf, out_size);
         gdFree(out_buf);
 
