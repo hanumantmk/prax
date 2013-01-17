@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QHash>
 #include <QString>
+#include <QUrl>
 
 #include "prax/utils.h"
 
@@ -16,6 +17,7 @@ class Request {
         std::string conn_id;
         std::string path;
         QHash<QString, QString> headers;
+	QUrl url;
         std::string body;
         bool disconnect;
         Request(QByteArray);

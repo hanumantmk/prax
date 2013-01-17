@@ -1,6 +1,7 @@
 #include "prax/request.h"
 #include <QHash>
 #include <QString>
+#include <QUrl>
 
 using namespace Prax;
 
@@ -26,6 +27,7 @@ Request::Request(QByteArray ba)
     disconnect = false;
     QHash<QString, QString>::const_iterator it = headers.constBegin();
     while (it != headers.constEnd()) {
+	// qDebug() << "header: " << it.key() << " : " << it.value();
         if (QString::compare(it.key(), QString("METHOD"), Qt::CaseSensitive) &&
             QString::compare(it.value(), QString("JSON"), Qt::CaseSensitive) &&
                         body == "{\"type\":\"disconnect\"}") {
@@ -34,6 +36,9 @@ Request::Request(QByteArray ba)
         }
 	it++;
     }
+
+    QByteArray url_bytes(headers.value("URI").toUtf8());
+    url = QUrl::fromEncoded(url_bytes);
 }
 
 QDebug Prax::operator<<(QDebug dbg, const Request& req)

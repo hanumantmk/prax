@@ -45,8 +45,17 @@ void Countdown::gen_countdown(const QList<QByteArray> &msg)
     qDebug() << *req;
 
     request = req;
+    QString key = QString("QUERY");
 
-    page->mainFrame()->load(QString("http://127.0.0.1:6767/static/banner.html"));
+    QString content_url = request->url.queryItemValue("content_url");
+
+    if(content_url.length()) {
+        qDebug() << "content_url is: " << content_url << "\n";
+    } else {
+        content_url = "http://127.0.0.1:6767/static/banner.html";
+    }
+
+    page->mainFrame()->load(content_url);
 }
 
 void Countdown::capturePage()
