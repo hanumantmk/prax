@@ -141,8 +141,11 @@ void Countdown::capturePage()
             gdimage = gdImageCreateFromPngPtr(ba.length(), ba.data());
 
             if (s == start) {
-                out_buf = gdImageGifAnimBeginPtr(gdimage, &out_size, 1, -1);
+                char headers[] = "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
+                sendData(headers,sizeof(headers)-1);
 
+                out_buf = gdImageGifAnimBeginPtr(gdimage, &out_size, 1, -1);
+                
                 sendData(out_buf, out_size);
 
                 gdFree(out_buf);
