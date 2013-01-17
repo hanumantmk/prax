@@ -14,7 +14,7 @@ WebWatch::WebWatch(QString in_addr, QString out_addr)
     request = NULL;
     pgdimage = NULL;
 
-    maxSize = QSize(400, 400);
+    maxSize = QSize(800, 400);
 
     clipID = "timeline";
 
@@ -102,7 +102,9 @@ void WebWatch::clickThrough(Request * req)
         if (x >= box[0].toDouble() && x <= box[0].toDouble() + box[2].toDouble() &&
             y >= box[1].toDouble() && y <= box[1].toDouble() + box[3].toDouble()) {
 
-            QString redirect = QString("HTTP/1.1 307\r\nLOCATION: %1\r\n\r\n").arg(link[0].toString());
+            QUrl resolvedUrl = pageUrl.resolved(QUrl(link[0].toString()));
+
+            QString redirect = QString("HTTP/1.1 307\r\nLOCATION: %1\r\n\r\n").arg(resolvedUrl.toString());
 
             QByteArray ba = redirect.toAscii();
 
@@ -129,7 +131,8 @@ void WebWatch::gen_next_page()
     qDebug() << "generating a new page...";
     if (!request) return;
     //page->mainFrame()->load(QString("http://127.0.0.1:6767/static/foo.html"));
-    page->mainFrame()->load(QString("https://twitter.com/msgpdhackday"));
+    pageUrl = QString("https://twitter.com/search/realtime?q=msgpdhackday&src=typd");
+    page->mainFrame()->load(pageUrl);
 }
 
 void WebWatch::capturePage()
@@ -181,6 +184,16 @@ void WebWatch::capturePage()
             grabRect = QRect(root_pos[0].toDouble(),root_pos[1].toDouble(),root_pos[2].toDouble(),root_pos[3].toDouble());
         } else {
             grabRect = QRect(0, 0, pageSize.width(), pageSize.height());
+        }
+
+        if (! maxSize.isNull()) {
+            if (maxSize.height() < grabRect.height()) {
+                grabRect.setHeight(maxSize.height());
+            }
+
+            if (maxSize.width() < grabRect.width()) {
+                grabRect.setWidth(maxSize.width());
+            }
         }
 
         int out_size;
