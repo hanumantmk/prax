@@ -4,8 +4,8 @@
 #include <QApplication>
 #include <QDebug>
 
-#include "prax/countdown.h"
-#include "prax/webwatch.h"
+#include "prax/renderserver.h"
+#include "prax/mongrel2.h"
 
 void error_usage(const char * e) {
     error(1,0,"%s\nUsage: prax --addr <address> --port <port>", e);
@@ -49,12 +49,16 @@ int main(int argc, char *argv[])
 
     QString addr_templ("tcp://%1:%2");
 
-    QString countdown_in = addr_templ.arg(base_addr).arg(port++);
-    QString countdown_out = addr_templ.arg(base_addr).arg(port++);
-    QString webwatch_in = addr_templ.arg(base_addr).arg(port++);
-    QString webwatch_out = addr_templ.arg(base_addr).arg(port++);
+    QString addr_in = addr_templ.arg(base_addr).arg(port++);
+    QString addr_out = addr_templ.arg(base_addr).arg(port++);
 
-    Prax::Countdown countdown(countdown_in, countdown_out);
-    Prax::WebWatch webwatch(webwatch_in, webwatch_out);
+    Prax::Mongrel2 mongrel2(addr_in, addr_out);
+
+    qDebug() << "binding handler to " << addr_in << " and " << addr_out;
+    Prax::RenderServer renderServer(1);
+    QObject::connect(&mongrel2, SIGNAL(request(Request *)), &renderServer, SLOT(request(Request *)));
+    QObject::connect(&renderServer, SIGNAL(jobProgress(Request *, QByteArray)), &mongrel2, SLOT(reply(Request *, QByteArray)));
+    QObject::connect(&renderServer, SIGNAL(jobDone(Request *)), &mongrel2, SLOT(endConnection(Request *)));
+
     return a.exec();
 }

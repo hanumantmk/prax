@@ -12,15 +12,17 @@
 namespace Prax {
 
 class Request {
-    public:
-        std::string sender;
-        std::string conn_id;
-        std::string path;
-        QHash<QString, QString> headers;
-	QUrl url;
-        std::string body;
-        bool disconnect;
-        Request(QByteArray);
+
+public:
+    QString sender;
+    QString conn_id;
+    QString path;
+    QHash<QString, QString> headers;
+    QUrl url;
+    QString body;
+    bool disconnect;
+    Request(QByteArray);
+
 };
 
 QDebug operator<<(QDebug, const Request&);

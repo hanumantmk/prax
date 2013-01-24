@@ -4,78 +4,78 @@
 
 using namespace Prax;
 
-std::vector<std::string> utils::split(const std::string& str, const std::string& sep, unsigned int count) {
-	std::vector<std::string> result;
-	std::string::size_type last_pos = str.find_first_not_of(sep, 0);
-	std::string::size_type pos = str.find_first_of(sep, last_pos);
-	int i = count;
+QByteArray utils::parse_netstring(QByteArray & str, QByteArray & rest)
+{
+    QByteArray colon(":");
+    QList<QByteArray> result = utils::split(str, colon, 1);
 
-	while (std::string::npos != pos || std::string::npos != last_pos) {
-		result.push_back(str.substr(last_pos, pos - last_pos));
-		last_pos = str.find_first_not_of(sep, pos);
-		pos = str.find_first_of(sep, last_pos);
-		if (count > 0) {
-			i--;
-			if (i==0) {
-				result.push_back(str.substr(last_pos, str.length() - last_pos));
-				break;
-			}
-		}
-	}
+    unsigned int len = result[0].toUInt();
 
-	return result;
+    rest = result[1].mid(len);
+    return result[1].left(len);
 }
 
-std::string utils::parse_netstring(const std::string& str, std::string& rest) {
-	std::vector<std::string> result = utils::split(str, ":", 1);
-	std::istringstream is(result[0]);
-	unsigned int len;
-	is >> len;
-	rest = result[1].substr(len+1, result[1].length() - len);
-	return result[1].substr(0, len);
+QList<QByteArray> utils::split(QByteArray & ba, QByteArray & sep, int cnt)
+{
+    int old_index = 0;
+    QList<QByteArray> list;
+
+    for (int i = 0; i < cnt; i++) {
+        int index = ba.indexOf(sep, i == 0 ? 0 : old_index);
+        list.push_back(ba.mid(old_index, index - old_index));
+        old_index = index + sep.length();
+    }
+
+    list.push_back(ba.mid(old_index));
+
+    return list;
 }
 
-QHash<QString, QString> utils::parse_json(const std::string& jsondoc) {
-	QHash<QString, QString> hdrs;
+QHash<QString, QString> utils::parse_json(QString jsondoc)
+{
+    QHash<QString, QString> hdrs;
 
-	json_object * jobj = json_tokener_parse(jsondoc.c_str());
+    json_object * jobj = json_tokener_parse(jsondoc.toUtf8().data());
 
-	if (jobj && json_object_is_type(jobj, json_type_object)) {
-		json_object_object_foreach(jobj, key, value) {
-			if (key && value && json_object_is_type(value, json_type_string)) {
-				hdrs[key] = QString(json_object_get_string(value));
-			}
-		}
-	}
+    if (jobj && json_object_is_type(jobj, json_type_object)) {
+        json_object_object_foreach(jobj, key, value) {
+            if (key && value && json_object_is_type(value, json_type_string)) {
+                hdrs[key] = QString(json_object_get_string(value));
+            }
+        }
+    }
 
-	json_object_put(jobj); // free json object
+    json_object_put(jobj); // free json object
 
-	return hdrs;
+    return hdrs;
 }
 
-void utils::deliver(const std::string& uuid, const std::vector<std::string>& idents, const QByteArray &data, nzmqt::ZMQSocket * socket) {
-	assert(idents.size() <= 100);
-	std::ostringstream msg;
-	msg << uuid << " ";
+void utils::deliver(QString & uuid, QStringList & idents, const QByteArray &data, nzmqt::ZMQSocket * socket)
+{
+    qDebug() << "request to deliver" << uuid << idents << data;
 
-	size_t idents_size(idents.size()-1); // initialize with size needed for spaces
-	for (size_t i=0; i<idents.size(); i++) {
-		idents_size += idents[i].size();
-	}
-	msg << idents_size << ":";
-	for (size_t i=0; i<idents.size(); i++) {
-		msg << idents[i];
-		if (i < idents.size()-1)
-			msg << " ";
-	}
-	msg << ", ";
+    assert(idents.size() <= 100);
 
-        std::string str = msg.str();
+    QString msg;
 
-        QByteArray ba(str.data(), str.length());
-        ba.append(data);
+    msg += uuid + " ";
 
-        socket->sendMessage(ba);
+    int idents_size(idents.size()-1); // initialize with size needed for spaces
+    for (int i=0; i<idents.size(); i++) {
+        idents_size += idents[i].length();
+    }
+    msg += QString::number(idents_size) + ":";
+    for (int i=0; i<idents.size(); i++) {
+        msg += idents[i];
+        if (i < idents.size()-1)
+            msg += " ";
+    }
+    msg += ", ";
+
+    QByteArray ba = msg.toAscii();
+    ba.append(data);
+
+    socket->sendMessage(ba);
 }
 
 void utils::install_support_js(OffScreenWebPage * page)

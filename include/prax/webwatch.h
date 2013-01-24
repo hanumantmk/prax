@@ -1,54 +1,20 @@
-#ifndef WEBWATCH_H
-#define WEBWATCH_H
+#ifndef PRAX_WEBWATCH_H
+#define PRAX_WEBWATCH_H
 
-#include <QImage>
-#include <QPainter>
-#include <QtCore>
-#include <QTimer>
-#include <QtWebKit>
-#include <gd.h>
-
-#include "prax/request.h"
-#include "prax/offscreenwebpage.h"
-#include "nzmqt/nzmqt.hpp"
+#include "prax/renderjobmongrel2.h"
 
 namespace Prax {
 
-class WebWatch : public QObject {
+class WebWatch : public RenderJobMongrel2 {
     Q_OBJECT
 
-    OffScreenWebPage *page;
-    QWebView *view;
-    QUrl redirectUrl;
-    QTimer *timer;
-    int tries;//failures
-    int statusCode;
-    QUrl pageUrl;
-    QSize pageSize;
-    QSize maxSize;
-    QString elementId;
-    nzmqt::ZMQSocket * in_socket;
-    nzmqt::ZMQSocket * out_socket;
-    Request * request;
-    bool new_request;
-    gdImage * pgdimage;
-    QString clipID;
-    QVariant clickMap;
+    QString url;
+    bool hasRun;
 
 public:
-    WebWatch(QString in_addr, QString out_addr);
-    void endConnection(void);
-
-private:
-    void sendData(void * buf, int size);
-    void clickThrough(Request * req);
-
-private slots:
-    void gen_page(const QList<QByteArray> &request);
-    void gen_next_page();
-    void capturePage();
-    void gotReply(QNetworkReply *reply);
-    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+    WebWatch(Request * req, QString & url);
+    virtual void init(Render * render);
+    virtual QByteArray run(Render * render);
 };
 
 }

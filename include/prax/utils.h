@@ -9,19 +9,17 @@
 
 namespace Prax {
 
-typedef std::pair<std::string, std::string> header;
-
 namespace utils {
 
-std::vector<std::string> split(const std::string& str, const std::string& sep, unsigned int count);
+QByteArray parse_netstring(QByteArray & str, QByteArray & rest);
 
-std::string parse_netstring(const std::string& str, std::string& rest) ;
+QHash<QString, QString> parse_json(QString jsondoc);
 
-QHash<QString, QString> parse_json(const std::string& jsondoc);
-
-void deliver(const std::string& uuid, const std::vector<std::string>& idents, const QByteArray &data, nzmqt::ZMQSocket * socket);
+void deliver(QString & uuid, QStringList & idents, const QByteArray &data, nzmqt::ZMQSocket * socket);
 
 void install_support_js(OffScreenWebPage * page);
+
+QList<QByteArray> split(QByteArray & ba, QByteArray & sep, int cnt);
 
 }
 }
