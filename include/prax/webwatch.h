@@ -12,7 +12,7 @@ class WebWatch : public RenderJobMongrel2 {
     bool hasRun;
 
 public:
-    WebWatch(Request * req, QString & url);
+    WebWatch(Request * req);
     virtual void init(Render * render);
     virtual QByteArray run(Render * render);
 };

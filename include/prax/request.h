@@ -19,6 +19,7 @@ public:
     QString path;
     QHash<QString, QString> headers;
     QUrl url;
+    QHash<QString, QString> urlParams;
     QString body;
     bool disconnect;
     Request(QByteArray);

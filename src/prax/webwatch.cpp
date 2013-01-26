@@ -2,9 +2,11 @@
 
 using namespace Prax;
 
-WebWatch::WebWatch(Request * req, QString & url) : RenderJobMongrel2(req), url(url)
+WebWatch::WebWatch(Request * req) : RenderJobMongrel2(req)
 {
     hasRun = false;
+
+    url = req->urlParams["url"];
 }
 
 void WebWatch::init(Render * render)

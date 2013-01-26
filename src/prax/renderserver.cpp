@@ -28,8 +28,7 @@ void RenderServer::request(Request * req)
     QStringList elements = req->path.split("/");
 
     if (elements.last() == "webwatch") {
-        QString url("http://google.com");
-        r->job = new WebWatch(req, url);
+        r->job = new WebWatch(req);
         // TODO replace this with something that picks the url out of the url
     } else {
         // TODO: do something smart here

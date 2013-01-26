@@ -29,6 +29,14 @@ Request::Request(QByteArray ba)
     QByteArray url_bytes(headers.value("URI").toUtf8());
     url = QUrl::fromEncoded(url_bytes);
 
+    QList<QPair<QByteArray, QByteArray> > eqi = url.encodedQueryItems();
+
+    for (QList<QPair<QByteArray, QByteArray> >::const_iterator i = eqi.constBegin(); i != eqi.constEnd(); i++) {
+        QString key = QUrl::fromPercentEncoding(i->first);
+        QString value = QUrl::fromPercentEncoding(i->second);
+        urlParams.insertMulti(key, value);
+    }
+
     if (headers["METHOD"] == "JSON" && body == "{\"type\":\"disconnect\"}") disconnect = true;
 }
 
@@ -41,6 +49,7 @@ QDebug Prax::operator<<(QDebug dbg, const Request& req)
         "path : " << req.path << ",\n" <<
         "disconnect : " << req.disconnect << ",\n" <<
         "url : " << req.url << ",\n" <<
+        "urlParams : " << req.urlParams << ",\n" <<
         "headers : " << req.headers <<
     "}\n";
 
